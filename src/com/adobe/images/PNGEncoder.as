@@ -60,7 +60,7 @@ package com.adobe.images
 	        var IHDR:ByteArray = new ByteArray();
 	        IHDR.writeInt(img.width);
 	        IHDR.writeInt(img.height);
-	        IHDR.writeUnsignedInt(0x08060000); // 32bit RGBA
+	        IHDR.writeUnsignedInt(img.transparent ? 0x08060000 : 0x8020000); // 32bit RGBA/24bit RGB
 	        IHDR.writeByte(0);
 	        writeChunk(png,0x49484452,IHDR);
 	        // Build IDAT chunk
@@ -73,8 +73,9 @@ package com.adobe.images
 	            if ( !img.transparent ) {
 	                for(j=0;j < img.width;j++) {
 	                    p = img.getPixel(j,i);
-	                    IDAT.writeUnsignedInt(
-	                        uint(((p&0xFFFFFF) << 8)|0xFF));
+	                    IDAT.writeByte((p >> 16) & 0xFF);
+	                    IDAT.writeByte((p >> 8) & 0xFF);
+	                    IDAT.writeByte((p >> 0) & 0xFF);
 	                }
 	            } else {
 	                for(j=0;j < img.width;j++) {
